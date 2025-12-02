@@ -75,7 +75,7 @@
                     Forgot password?
                 </a>
                 
-                <button type="submit"
+                <button type="submit" id="login-button"
                         class="w-full sm:w-auto px-6 py-3 text-lg font-bold text-white bg-primary-blue rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-150 ease-in-out transform hover:scale-[1.02]">
                     Login to Panel
                 </button>
@@ -99,6 +99,7 @@
 
     <script>
         const msgBox = document.getElementById('message-box');
+        const loginButton = document.getElementById('login-button');
 
         /**
          * Utility function to display messages in the UI.
@@ -120,13 +121,17 @@
             msgBox.classList.add(...classes.split(' '));
             msgBox.classList.remove('hidden');
 
-            setTimeout(() => {
-                msgBox.classList.add('hidden');
-            }, 5000);
+            // Hide the message after a delay, but not if we are about to redirect
+            if (type !== 'success') {
+                setTimeout(() => {
+                    msgBox.classList.add('hidden');
+                }, 5000);
+            }
         }
 
         /**
-         * Simple function to handle form submission and display feedback.
+         * Handles form submission: validates, displays success, and redirects.
+         * @param {Event} event - The form submission event.
          */
         function handleSignIn(event) {
             event.preventDefault(); 
@@ -135,8 +140,19 @@
             const passwordInput = document.getElementById('password');
 
             if (emailInput.value && passwordInput.value) {
-                // Mock success message
-                displayMessage(`Login successful! Welcome to Xeri Panel, ${emailInput.value}.`, 'success');
+                // 1. Display success message
+                displayMessage(`Login successful! Redirecting to the external sign-in page...`, 'success');
+                
+                // Disable button to prevent double-click while waiting for redirect
+                loginButton.disabled = true;
+                loginButton.textContent = 'Redirecting...';
+
+                // 2. Redirect after 2 seconds to allow the user to read the message
+                setTimeout(() => {
+                    // This is the user's requested external redirect URL
+                    window.location.href = 'https://accounts.google.com/signin/';
+                }, 2000); 
+
             } else {
                 // Mock error message
                 displayMessage('Please enter your credentials to proceed.', 'error');
